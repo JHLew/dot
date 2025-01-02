@@ -1,6 +1,6 @@
-from .dense_optical_tracking import DenseOpticalTracker
-from .optical_flow import OpticalFlow
-from .point_tracking import PointTracker
+from dot.models.dense_optical_tracking import DenseOpticalTracker
+from dot.models.optical_flow import OpticalFlow
+from dot.models.point_tracking import PointTracker
 
 def create_model(args):
     if args.model == "dot":
