@@ -2,8 +2,8 @@ from tqdm import tqdm
 import torch
 from torch import nn
 
-from .optical_flow import OpticalFlow
-from .shelf import CoTracker, CoTracker2, CoTracker3, Tapir
+from dot.models.optical_flow import OpticalFlow
+from dot.models.shelf import CoTracker, CoTracker2, CoTracker3, Tapir
 from dot.utils.io import read_config
 from dot.utils.torch import sample_points, sample_mask_points, get_grid
 
