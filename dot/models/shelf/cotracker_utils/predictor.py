@@ -8,9 +8,9 @@ import torch
 import torch.nn.functional as F
 
 from tqdm import tqdm
-from .models.core.cotracker.cotracker import get_points_on_a_grid
-from .models.core.model_utils import smart_cat
-from .models.build_cotracker import build_cotracker
+from dot.models.shelf.cotracker_utils.models.core.cotracker.cotracker import get_points_on_a_grid
+from dot.models.shelf.cotracker_utils.models.core.model_utils import smart_cat
+from dot.models.shelf.cotracker_utils.models.build_cotracker import build_cotracker
 
 
 class CoTrackerPredictor(torch.nn.Module):

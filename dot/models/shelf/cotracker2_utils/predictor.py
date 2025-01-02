@@ -7,8 +7,8 @@
 import torch
 import torch.nn.functional as F
 
-from .models.core.model_utils import smart_cat, get_points_on_a_grid
-from .models.build_cotracker import build_cotracker
+from dot.models.shelf.cotracker2_utils.models.core.model_utils import smart_cat, get_points_on_a_grid
+from dot.models.shelf.cotracker2_utils.models.build_cotracker import build_cotracker
 
 
 class CoTrackerPredictor(torch.nn.Module):
