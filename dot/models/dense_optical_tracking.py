@@ -4,8 +4,8 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from einops import rearrange, repeat
 
-from .optical_flow import OpticalFlow
-from .point_tracking import PointTracker
+from dot.models.optical_flow import OpticalFlow
+from dot.models.point_tracking import PointTracker
 from dot.utils.torch import get_grid
 
 
