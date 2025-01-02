@@ -2,6 +2,6 @@ from setuptools import setup, find_packages
 
 setup(
     name='dot',
-    version='0.0.6',
+    version='0.1.0',
     packages=find_packages()
 )

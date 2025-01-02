@@ -34,6 +34,8 @@ class DenseOpticalTracker(nn.Module):
             return self.get_tracks_from_first_to_every_other_frame(data, **kwargs)
         elif mode == "tracks_from_every_cell_in_every_frame":
             return self.get_tracks_from_every_cell_in_every_frame(data, **kwargs)
+        elif mode == 'tracks_N_to_N':
+            return self.get_tracks_N_to_N(data, **kwargs)
         else:
             raise ValueError(f"Unknown mode {mode}")
 
@@ -104,6 +106,49 @@ class DenseOpticalTracker(nn.Module):
                     cur_y = cur_points[..., 1] / (h - 1)
                     cur_tracks = dense_to_sparse_tracks(cur_x, cur_y, tracks_from_src[b], h, w)
                     tracks[b, :, cur] = cur_tracks
+        return {"tracks": tracks}
+
+    def get_tracks_N_to_N(self, data, **kwargs):
+        video = data["video"]
+        B, T, C, h, w = video.shape
+        H, W = self.resolution
+
+        if h != H or w != W:
+            video = video.reshape(B * T, C, h, w)
+            video = F.interpolate(video, size=(H, W), mode="bilinear")
+            video = video.reshape(B, T, C, H, W)
+
+        init = self.point_tracker(data, mode="tracks_at_motion_boundaries", **kwargs)["tracks"]
+        init = torch.stack([init[..., 0] / (w - 1), init[..., 1] / (h - 1), init[..., 2]], dim=-1)
+
+        grid = get_grid(H, W, device=video.device)
+        grid[..., 0] *= (W - 1)
+        grid[..., 1] *= (H - 1)
+        tracks = []
+        for src_step in range(T):
+            src_points = init[:, src_step]
+            src_frame = video[:, src_step]
+            tracks_from_src = []
+            for tgt_step in range(T):
+                if src_step == tgt_step:
+                    flow = torch.zeros(B, H, W, 2, device=video.device)
+                    alpha = torch.ones(B, H, W, device=video.device)
+                else:
+                    tgt_points = init[:, tgt_step]
+                    tgt_frame = video[:, tgt_step]
+                    data = {
+                        "src_frame": src_frame,
+                        "tgt_frame": tgt_frame,
+                        "src_points": src_points,
+                        "tgt_points": tgt_points
+                    }
+                    pred = self.optical_flow_refiner(data, mode="flow_with_tracks_init", **kwargs)
+                    flow, alpha = pred["flow"], pred["alpha"]
+                tracks_from_src.append(torch.cat([flow + grid, alpha[..., None]], dim=-1))
+            tracks.append(torch.stack(tracks_from_src, dim=1))
+            # tracks: N (src) x B x N (tgt) x H x W x 3
+            tracks = torch.stack(tracks, dim=1)
+            tracks = tracks.permute(1, 0, 2, 5, 3, 4)  # B N_src N_tgt C H W
         return {"tracks": tracks}
 
     def get_tracks_from_first_to_every_other_frame(self, data, **kwargs):
