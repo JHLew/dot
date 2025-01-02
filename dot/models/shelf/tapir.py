@@ -2,7 +2,7 @@ from torch import nn
 import torch.nn.functional as F
 from einops import rearrange
 
-from .tapir_utils.tapir_model import TAPIR
+from dot.models.shelf.tapir_utils.tapir_model import TAPIR
 
 class Tapir(nn.Module):
     def __init__(self, args):

@@ -1,6 +1,6 @@
 from torch import nn
 
-from .cotracker3_utils.predictor import CoTrackerPredictor
+from dot.models.shelf.cotracker3_utils.predictor import CoTrackerPredictor
 
 
 class CoTracker3(nn.Module):

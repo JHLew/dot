@@ -3,10 +3,10 @@ from torch import nn
 import torch.nn.functional as F
 
 
-from .raft_utils.update import BasicUpdateBlock
-from .raft_utils.extractor import BasicEncoder
-from .raft_utils.corr import CorrBlock
-from .raft_utils.utils import coords_grid
+from dot.models.shelf.raft_utils.update import BasicUpdateBlock
+from dot.models.shelf.raft_utils.extractor import BasicEncoder
+from dot.models.shelf.raft_utils.corr import CorrBlock
+from dot.models.shelf.raft_utils.utils import coords_grid
 
 
 class RAFT(nn.Module):
