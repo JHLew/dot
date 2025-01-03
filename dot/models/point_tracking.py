@@ -66,7 +66,8 @@ class PointTracker(nn.Module):
         tracks = []
         motion_boundaries = {}
         cache_features = True
-        for _ in tqdm(range(N // S), desc="Track batch of points", leave=False):
+        # for _ in tqdm(range(N // S), desc="Track batch of points", leave=False):
+        for _ in range(N // S):
             src_points = []
             for src_step, src_samples in enumerate(samples_per_step):
                 if src_samples == 0:
