@@ -11,8 +11,8 @@ from dot.utils.torch import get_grid
 
 class DenseOpticalTracker(nn.Module):
     def __init__(self,
-                 height=512,
-                 width=512,
+                 height=None,  # 512,
+                 width=None,  # 512,
                  tracker_config="configs/cotracker2_patch_4_wind_8.json",
                  tracker_path="checkpoints/movi_f_cotracker2_patch_4_wind_8.pth",
                  estimator_config="configs/raft_patch_8.json",
@@ -111,7 +111,8 @@ class DenseOpticalTracker(nn.Module):
     def get_tracks_N_to_N(self, data, **kwargs):
         video = data["video"]
         B, T, C, h, w = video.shape
-        H, W = self.resolution
+        H = h if self.resolution[0] is None else self.resolution[0]
+        W = w if self.resolution[1] is None else self.resolution[1]
 
         if h != H or w != W:
             video = video.reshape(B * T, C, h, w)
@@ -146,9 +147,9 @@ class DenseOpticalTracker(nn.Module):
                     flow, alpha = pred["flow"], pred["alpha"]
                 tracks_from_src.append(torch.cat([flow + grid, alpha[..., None]], dim=-1))
             tracks.append(torch.stack(tracks_from_src, dim=1))
-        # tracks: N (src) x B x N (tgt) x H x W x 3
-        tracks = torch.stack(tracks, dim=1)
-        tracks = tracks.permute(1, 0, 2, 5, 3, 4)  # B N_src N_tgt C H W
+        # tracks: N (src) x [B x N (tgt) x H x W x 3]
+        tracks = torch.stack(tracks, dim=1)  # B x N (src) x N (tgt) x H x W x 3
+        tracks = tracks.permute(0, 1, 2, 5, 3, 4)  # B x N (src) x N (tgt) x C x H x W
         return {"tracks": tracks}
 
     def get_tracks_from_first_to_every_other_frame(self, data, **kwargs):
